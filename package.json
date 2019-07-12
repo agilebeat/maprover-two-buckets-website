@@ -1,0 +1,40 @@
+{
+  "name": "leaflet.tilelayer.JavaScrpt-Playground",
+  "version": "0.0.1",
+  "description": "JavaScript Snippets of code used in Leaflet as a fundation",
+  "main": "L.TileLayer.MaproverClassify.js",
+  "scripts": {
+    "lintfix": "prettier --write *.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://mpdwulit@github.com/agilebeat-inc/Leaflet.TileLayer.JavaScript-Playground.git"
+  },
+  "keywords": [
+    "leaflet",
+    "maprover",
+    "sandbox",
+    "JavaScript"
+  ],
+  "author": "Marek Piotr Dwulit <marek.dwulit@agilebeat.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://mpdwulit@github.com/agilebeat-inc/Leaflet.TileLayer.JavaScript-Playground.git/issues"
+  },
+  "homepage": "https://mpdwulit@github.com/agilebeat-inc/Leaflet.TileLayer.JavaScript-Playground.git#README",
+  "devDependencies": {
+    "leaflet": "^1.0.0"
+  },
+  "prettier": {
+    "printWidth": 85,
+    "tabWidth": 4,
+    "useTabs": true,
+    "trailingComma": "es5",
+    "arrowParens": "always"
+  },
+  "dependencies": {
+    "pouchdb": "^6.0.0",
+    "base64url": "^3.0.1"
+  }
+}
