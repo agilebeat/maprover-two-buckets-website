@@ -29,6 +29,10 @@ L.TileLayer.addInitHook(function() {
 	this._db = new PouchDB("offline-tiles");
 });
 
+// 🍂option classifyRailService: String = 'url'
+// The url under which classify service runs (POST method)
+L.TileLayer.prototype.options.classifyURLService = "";
+
 // 🍂namespace TileLayer
 // 🍂section PouchDB tile caching options
 // 🍂option useCache: Boolean = false
@@ -197,12 +201,17 @@ L.TileLayer.include({
 		var body_json = { "z": path_array[1], "x": path_array[2], "y": path_array[3], "tile_base64": base64_str }
 		var xhr = new XMLHttpRequest();
 		//xhr.open('POST', 'https://api.maprover.link/maprover', true);
-		xhr.open('POST', 'https://bgpquq5d0c.execute-api.us-east-1.amazonaws.com/railroad/infer', true)
-		xhr.setRequestHeader('Content-Type', 'application/json')
 
-		xhr.onload = function () {
-			console.log('---------posted---------');
-		};
+		if (this.options.classifyURLService != "") {
+			xhr.open('POST', this.options.classifyURLService, true)
+			xhr.setRequestHeader('Content-Type', 'application/json')
+
+			xhr.onload = function () {
+				console.log('Tile posted');
+			};
+		} else {
+			console.log('No url to post')
+		}
 
 
 
@@ -218,7 +227,6 @@ L.TileLayer.include({
 					})
 					.then(
 						function(status) {
-							console.log("I am calling this anyway")
 							return this._db.putAttachment(
 								tileUrl,
 								"tile",

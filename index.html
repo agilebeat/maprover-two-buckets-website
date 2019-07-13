@@ -19,7 +19,7 @@
 </head>
 <body>
     <div id="map"></div>
-
+    <script>const RAIL_S3_BUCKET_LAYER = 'https://md-rail-maprover.s3.amazonaws.com/{z}/{x}/{y}.png'</script>
     <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet-src.js"></script>
     <script src="https://unpkg.com/pouchdb@^7.0.0/dist/pouchdb.js"></script>
     <script src="scripts/leaflet-side-by-side.js"></script>
@@ -109,17 +109,20 @@
                 'Imagery © <a href="http://mapbox.com">Mapbox</a>',
             id: 'examples.map-i875mjb7',
             useCache: true,
-            crossOrigin: true
+            crossOrigin: true,
+            classifyURLService: 'https://bgpquq5d0c.execute-api.us-east-1.amazonaws.com/railroad/infer'
+
         });
 
-        var railLayer = L.tileLayer('https://md-rail-maprover.s3.amazonaws.com/{z}/{x}/{y}.png', {
+        var railLayer = L.tileLayer(RAIL_S3_BUCKET_LAYER, {
             maxZoom: 19,
             attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
                 '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
                 'Imagery © <a href="http://mapbox.com">Mapbox</a>',
             id: 'examples.map-i875mjb7',
             useCache: false,
-            crossOrigin: true
+            crossOrigin: true,
+            classifyURLService: 'https://bgpquq5d0c.execute-api.us-east-1.amazonaws.com/railroad/infer'
         });
 
         layer.addTo(map);
