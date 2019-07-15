@@ -180,6 +180,16 @@ L.TileLayer.include({
 		}
 	},
 
+
+    _tile2long: function (x,z) {
+	    return (x/Math.pow(2,z)*360-180);
+    },
+
+    _tile2lat: function (y,z) {
+        var n=Math.PI-2*Math.PI*y/Math.pow(2,z);
+        return (180/Math.PI*Math.atan(0.5*(Math.exp(n)-Math.exp(-n))));
+    },
+
 	// Async'ly saves the tile as a PouchDB attachment
 	// Will run the done() callback (if any) when finished.
 	_saveTile: function(tile, tileUrl, existingRevision, done) {
@@ -202,19 +212,31 @@ L.TileLayer.include({
 
 		var dataURL = canvas.toDataURL("image/png");
 		var base64_str = dataURL.replace(/^data:image\/(png|jpg);base64,/, "")
-		var body_json = { "z": path_array[1], "x": path_array[2], "y": path_array[3], "tile_base64": base64_str }
-        console.log("--------Sending tile---------");
+        var z = path_array[1];
+		var x = path_array[2];
+		var y = path_array[3];
+		var body_json = { "z": z, "x": x, "y": y, "tile_base64": base64_str }
 		if (this.options.classifyURLService != "") {
+		    y = y.split('.')[0]
+            var nw_long = this._tile2long(parseFloat(x), parseFloat(z))
+            var nw_lat = this._tile2lat(parseFloat(y), parseFloat(z))
+            var se_long = this._tile2long(parseFloat(x)+1, parseFloat(z))
+            var se_lat = this._tile2lat(parseFloat(y)+1, parseFloat(z))
+            var rect = L.rectangle([[nw_lat, nw_long], [se_lat, se_long]]);
+
             var xhr = new XMLHttpRequest();
+            xhr.z = z
+            xhr.rect = rect
             xhr.layerGroup = this.options.layerGroup;
-			xhr.open('POST', this.options.classifyURLService, true)
-			xhr.setRequestHeader('Content-Type', 'application/json')
+			xhr.open('POST', this.options.classifyURLService, true);
+			xhr.setRequestHeader('Content-Type', 'application/json');
 
 			xhr.onload = function () {
-			    json_rsp = JSON.parse(xhr.responseText)
-                if (json_rsp.RailClass) {
-                    var rect = L.rectangle([[-41.2458, 174.78682], [-41.25, 174.79]])
-                    this.layerGroup.addLayer(rect)
+			    let json_rsp = JSON.parse(xhr.responseText);
+			    if (json_rsp.RailClass) {
+			        if (xhr.z == 17) {
+                        this.layerGroup.addLayer(xhr.rect);
+                    }
                 }
 			};
 		} else {
