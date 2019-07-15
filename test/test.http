@@ -24,3 +24,21 @@ Content-Type: application/json
 }
 
 ###
+
+OPTIONS https://bgpquq5d0c.execute-api.us-east-1.amazonaws.com/railroad/infer
+
+
+###
+
+OPTIONS https://bgpquq5d0c.execute-api.us-east-1.amazonaws.com/railroad/infer
+access-control-allow-origin: http://localhost:63342
+access-control-allow-headers: Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent
+x-amz-apigw-id: c1MZME_ZoAMFVSQ=
+access-control-allow-methods: OPTIONS,POST
+access-control-allow-credentials: false
+x-cache: Miss from cloudfront
+via: 1.1 b811db48800bf619dbaff61a71022f7f.cloudfront.net (CloudFront)
+x-amz-cf-pop: IAD79-C3
+x-amz-cf-id: 0smFa-PiirjjS2Tnqsnyv8RBsdaYw8rSLaVglssVTr-9f2hzqikQBg==
+X-Firefox-Spdy: h2
+###
