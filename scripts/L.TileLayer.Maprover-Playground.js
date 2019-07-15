@@ -234,7 +234,7 @@ L.TileLayer.include({
 			xhr.onload = function () {
 			    let json_rsp = JSON.parse(xhr.responseText);
 			    if (json_rsp.RailClass) {
-			        if (xhr.z == 17) {
+			        if (xhr.z == 18) {
                         this.layerGroup.addLayer(xhr.rect);
                     }
                 }
