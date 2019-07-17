@@ -10,6 +10,7 @@ endpoints.
 
 ## Steps to install the application
 
+0. Clone the project from github repository
 1. Open index.html file
 2. Navigate to line 23
 
