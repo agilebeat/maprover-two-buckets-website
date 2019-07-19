@@ -12,8 +12,9 @@ Content-Type: application/json
 }
 
 ###
-
-POST https://bgpquq5d0c.execute-api.us-east-1.amazonaws.com/railroad/infer
+#
+#POST https://bgpquq5d0c.execute-api.us-east-1.amazonaws.com/railroad/infer
+POST https://f1eu2y8usc.execute-api.us-east-1.amazonaws.com/railroad/infer
 Content-Type: application/json
 
 {
