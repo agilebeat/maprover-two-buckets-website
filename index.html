@@ -5,6 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.9/leaflet.draw.css"/>
     <style>
         body {
             padding: 0;
@@ -22,8 +23,9 @@
         const RAIL_S3_BUCKET_LAYER = 'https://md-rail-maprover.s3.amazonaws.com/{z}/{x}/{y}.png'
         const RAIL_LAMBDA_CLASSIFY = 'https://bgpquq5d0c.execute-api.us-east-1.amazonaws.com/railroad/infer'
     </script>
-    <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet-src.js"></script>
-    <script src="https://unpkg.com/pouchdb@^7.0.0/dist/pouchdb.js"></script>
+    <script src="scripts/leaflet-src.js"></script>
+    <script src="scripts/leaflet.draw.js"></script>
+    <script src="scripts/pouchdb.js"></script>
     <script src="scripts/leaflet-side-by-side.js"></script>
 
     <script src="scripts/L.TileLayer.Maprover-Playground.js"></script>
@@ -96,7 +98,6 @@
                 container.style.height = '45px';
 
                 container.onclick = function(){
-                    map.
                     console.log('buttonClicked');
                 }
 
@@ -136,6 +137,44 @@
         layer.addTo(map);
         railLayer.addTo(map);
         L.control.sideBySide(layer, railLayer).addTo(map);
+
+        var editableLayers = new L.FeatureGroup();
+        map.addLayer(editableLayers);
+
+        var options = {
+            position: 'topright',
+            draw: {
+                polyline: false,
+                polygon: {
+                    allowIntersection: false, // Restricts shapes to simple polygons
+                    drawError: {
+                        color: '#e1e100', // Color the shape will turn when intersects
+                        message: '<strong>Oh snap!<strong> you can\'t draw that!' // Message that will show when intersect
+                    }
+                },
+                circle: false, // Turns off this drawing tool
+                rectangle: true,
+                marker: false
+            },
+            edit: {
+                featureGroup: editableLayers, //REQUIRED!!
+                remove: true
+            }
+        };
+
+        var drawControl = new L.Control.Draw(options);
+        map.addControl(drawControl);
+
+        map.on(L.Draw.Event.CREATED, function(e) {
+            var type = e.layerType,
+                layer = e.layer;
+
+            if (type === 'marker') {
+                layer.bindPopup('A popup!');
+            }
+
+            editableLayers.addLayer(layer);
+        });
 
 
 
