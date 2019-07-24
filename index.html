@@ -169,8 +169,9 @@
             var type = e.layerType,
                 layer = e.layer;
 
-            if (type === 'marker') {
-                layer.bindPopup('A popup!');
+            if (type === 'polygon') {
+                console.log(layer)
+                layer.bindPopup(layer);
             }
 
             editableLayers.addLayer(layer);
