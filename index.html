@@ -23,17 +23,18 @@
         const RAIL_S3_BUCKET_LAYER = 'https://md-rail-maprover.s3.amazonaws.com/{z}/{x}/{y}.png'
         const RAIL_LAMBDA_CLASSIFY = 'https://bgpquq5d0c.execute-api.us-east-1.amazonaws.com/railroad/infer'
     </script>
+    <script src='scripts/turf.min.js'></script>
     <script src="scripts/leaflet-src.js"></script>
     <script src="scripts/leaflet.draw.js"></script>
     <script src="scripts/pouchdb.js"></script>
     <script src="scripts/leaflet-side-by-side.js"></script>
-
     <script src="scripts/L.TileLayer.Maprover-Playground.js"></script>
+    <script src="scripts/TileAlgebra.js"></script>
     <script>
         var map = L.map('map', {
             minZoom: 0,
-            maxZoom: 20
-        }).setView([-41.2458, 174.78682], 17);
+            maxZoom: 19
+        }).setView([-41.2458, 174.78682], 18);
         var layer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             minZoom: 0,
@@ -60,7 +61,7 @@
         var railControl =  L.Control.extend({
 
             options: {
-                position: 'topleft'
+                position: 'topright'
             },
 
             onAdd: function (map) {
@@ -85,7 +86,7 @@
         var tweetControl =  L.Control.extend({
 
             options: {
-                position: 'topleft'
+                position: 'topright'
             },
 
             onAdd: function (map) {
@@ -108,7 +109,7 @@
         var filterTweetControl =  L.Control.extend({
 
             options: {
-                position: 'topleft'
+                position: 'topright'
             },
 
             onAdd: function (map) {
@@ -142,7 +143,7 @@
         map.addLayer(editableLayers);
 
         var options = {
-            position: 'topright',
+            position: 'topleft',
             draw: {
                 polyline: false,
                 polygon: {
@@ -170,15 +171,13 @@
                 layer = e.layer;
 
             if (type === 'polygon') {
-                console.log(layer)
-                layer.bindPopup(layer);
+                var layerGroup = tileAlgebra.bbox_coverage(layer._bounds._northEast, layer._bounds._southWest, 19);
+                layerGroup.addTo(this);
+                //console.log(this);
             }
 
-            editableLayers.addLayer(layer);
+            //editableLayers.addLayer(layer);
         });
-
-
-
     </script>
 </body>
 </html>
