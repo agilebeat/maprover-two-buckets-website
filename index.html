@@ -29,6 +29,7 @@
     <script src="scripts/pouchdb.js"></script>
     <script src="scripts/leaflet-side-by-side.js"></script>
     <script src="scripts/L.TileLayer.Maprover-Playground.js"></script>
+    <script src="scripts/turf.min.js"></script>
     <script src="scripts/TileAlgebra.js"></script>
     <script>
         var map = L.map('map', {
@@ -171,12 +172,12 @@
                 layer = e.layer;
 
             if (type === 'polygon') {
-                var layerGroup = tileAlgebra.bbox_coverage(layer._bounds._northEast, layer._bounds._southWest, 19);
+                let layerGroup = tileAlgebra.bbox_coverage(layer._bounds._northEast,
+                                                           layer._bounds._southWest,
+                                                           19,
+                                                           layer.toGeoJSON());
                 layerGroup.addTo(this);
-                //console.log(this);
             }
-
-            //editableLayers.addLayer(layer);
         });
     </script>
 </body>
