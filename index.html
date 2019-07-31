@@ -138,7 +138,6 @@
 
         layer.addTo(map);
         railLayer.addTo(map);
-        L.control.sideBySide(layer, railLayer).addTo(map);
 
         var editableLayers = new L.FeatureGroup();
         map.addLayer(editableLayers);
@@ -179,6 +178,8 @@
                 layerGroup.addTo(this);
             }
         });
+
+        console.log(map.getRenderer(railLayer));
     </script>
 </body>
 </html>
