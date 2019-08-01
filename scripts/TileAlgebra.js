@@ -31,7 +31,7 @@ var tileAlgebra = (function () {
         if (!turf.booleanContains(polygon_tf, rect_tf)) {
             return;
         };
-        let tileURL = 'https://md-rail-maprover.s3.amazonaws.com/' + z+'/' + x + '/' + y + '.png';
+        let tileURL = 'https://a.tile.openstreetmap.org/' + z + '/' + x + '/' + y + '.png';
         let xhr = new XMLHttpRequest();
         xhr.open('GET', tileURL, true);
         xhr.setRequestHeader('Content-Type', 'img/png');
@@ -47,7 +47,7 @@ var tileAlgebra = (function () {
                     let tileB64 = dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
                     let body_json = { "z": z.toString(), "x": x.toString(), "y": y.toString() + ".png", "tile_base64": tileB64 };
                     let xhr_eval = new XMLHttpRequest();
-                    xhr_eval.open('POST', 'https://bgpquq5d0c.execute-api.us-east-1.amazonaws.com/railroad/infer', true);
+                    xhr_eval.open('POST', 'https://bgpquq5d0c.execute-api.us-east-1.amazonaws.com/railroad/persist', true);
                     xhr_eval.setRequestHeader('Content-Type', 'application/json');
                     xhr_eval.onload = function () {
                         let json_rsp = JSON.parse(xhr_eval.responseText);
