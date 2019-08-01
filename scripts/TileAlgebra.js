@@ -2,7 +2,7 @@
 window.URL = window.URL || window.webkitURL;
 
 
-var tileAlgebra = (function (layerGroup) {
+var tileAlgebra = (function () {
     let _tile2long = function (x,z) {
         return (x/Math.pow(2,z)*360-180);
     };
@@ -24,7 +24,13 @@ var tileAlgebra = (function (layerGroup) {
     var _long2tile = function (lon,zoom) { return (Math.floor((lon+180)/360*Math.pow(2,zoom))); };
     var _lat2tile = function (lat,zoom)  { return (Math.floor((1-Math.log(Math.tan(lat*Math.PI/180) + 1/Math.cos(lat*Math.PI/180))/Math.PI)/2 *Math.pow(2,zoom))); };
 
-    var _get_tile = function(x, y, z) {
+    var _validate_tile = function(x, y, z, polygon_gj, layerGroup) {
+        let polygon_tf = turf.polygon(polygon_gj.geometry.coordinates);
+        let rect = _get_as_rectangle(x,y,z);
+        let rect_tf = turf.polygon(rect.toGeoJSON().geometry.coordinates);
+        if (!turf.booleanContains(polygon_tf, rect_tf)) {
+            return;
+        };
         let tileURL = 'https://md-rail-maprover.s3.amazonaws.com/' + z+'/' + x + '/' + y + '.png';
         let xhr = new XMLHttpRequest();
         xhr.open('GET', tileURL, true);
@@ -44,8 +50,12 @@ var tileAlgebra = (function (layerGroup) {
                     xhr_eval.open('POST', 'https://bgpquq5d0c.execute-api.us-east-1.amazonaws.com/railroad/infer', true);
                     xhr_eval.setRequestHeader('Content-Type', 'application/json');
                     xhr_eval.onload = function () {
-                        let json_rsp = JSON.parse(xhr.responseText);
-                        console.log(json_rsp.RailClass);
+                        let json_rsp = JSON.parse(xhr_eval.responseText);
+                        if (json_rsp.RailClass) {
+                            let rect = _get_as_rectangle(x, y, z);
+                            layerGroup.addLayer(rect);
+                            console.log(json_rsp.RailClass);
+                        }
                     };
                     xhr_eval.send(JSON.stringify(body_json));
                 };
@@ -54,17 +64,6 @@ var tileAlgebra = (function (layerGroup) {
         xhr.send();
     }
 
-    var _is_railroad = function (x, y, z) {
-        var classifyURL = 'https://bgpquq5d0c.execute-api.us-east-1.amazonaws.com/railroad/infer';
-        var xhr = new XMLHttpRequest();
-        xhr.z = z;
-        xhr.x = x;
-        xhr.y = y;
-        xhr.open('POST', this.options.classifyURLService, true);
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        return;
-    };
-
     return {
         bbox_coverage: function (northEast, southWest, z, polygon_gj) {
             let layerGroup = L.layerGroup([]);
@@ -72,16 +71,9 @@ var tileAlgebra = (function (layerGroup) {
             let start_y = _lat2tile(northEast.lat, z);
             let start_x = _long2tile(southWest.lng, z);
             let stop_y = _lat2tile(southWest.lat, z);
-            console.log(polygon_gj)
-            let polygon_tf = turf.polygon(polygon_gj.geometry.coordinates);
             for (let x = start_x; x < stop_x; x++) {
                 for (let y = start_y; y < stop_y; y++) {
-                    _get_tile(x, y, z);
-                    let rect = _get_as_rectangle(x,y,z);
-                    let rect_tf = turf.polygon(rect.toGeoJSON().geometry.coordinates);
-                    if (turf.booleanContains(polygon_tf, rect_tf)) {
-                        layerGroup.addLayer(_get_as_rectangle(x,y,z));
-                    };
+                    _validate_tile(x, y ,z, polygon_gj, layerGroup);
                 };
             };
             return layerGroup;
