@@ -3,6 +3,9 @@ window.URL = window.URL || window.webkitURL;
 
 
 var tileAlgebra = (function () {
+    let max = 0;
+    let current_progress=0;
+
     let _tile2long = function (x, z) {
         return (x / Math.pow(2, z) * 360 - 180);
     };
@@ -12,23 +15,36 @@ var tileAlgebra = (function () {
         return (180 / Math.PI * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n))));
     };
 
-    var _get_as_rectangle = function (x, y, z) {
-        let nw_long = _tile2long(parseFloat(x), parseFloat(z))
-        let nw_lat = _tile2lat(parseFloat(y), parseFloat(z))
-        let se_long = _tile2long(parseFloat(x) + 1, parseFloat(z))
-        let se_lat = _tile2lat(parseFloat(y) + 1, parseFloat(z))
+    let _get_as_rectangle = function (x, y, z) {
+        let nw_long = _tile2long(parseFloat(x), parseFloat(z));
+        let nw_lat = _tile2lat(parseFloat(y), parseFloat(z));
+        let se_long = _tile2long(parseFloat(x) + 1, parseFloat(z));
+        let se_lat = _tile2lat(parseFloat(y) + 1, parseFloat(z));
         let rect = L.rectangle([[nw_lat, nw_long], [se_lat, se_long]]);
-        return rect
+        return rect;
     }
 
-    var _long2tile = function (lon, zoom) {
+    let _long2tile = function (lon, zoom) {
         return (Math.floor((lon + 180) / 360 * Math.pow(2, zoom)));
     };
-    var _lat2tile = function (lat, zoom) {
+    let _lat2tile = function (lat, zoom) {
         return (Math.floor((1 - Math.log(Math.tan(lat * Math.PI / 180) + 1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, zoom)));
     };
 
-    var _validate_tile = function (x, y, z, polygon_gj, layerGroup) {
+    let _handle_progress_bar = function(progressBar, map) {
+        let cp = Math.round((100*current_progress)/max);
+        if (cp == 100) {
+            max = 0;
+            current_progress=0;
+            progressBar.remove();
+        }
+        $("#dynamic")
+            .css("width", cp + "%")
+            .attr("aria-valuenow", cp)
+            .text(cp + "% Complete");
+    };
+
+    let _validate_tile = function (x, y, z, polygon_gj, layerGroup, progressBar, map) {
         let polygon_tf = turf.polygon(polygon_gj.geometry.coordinates);
         let rect = _get_as_rectangle(x, y, z);
         let rect_tf = turf.polygon(rect.toGeoJSON().geometry.coordinates);
@@ -37,11 +53,6 @@ var tileAlgebra = (function () {
         }
         ;
         downloadedImg = new Image;
-
-        //let xhr = new XMLHttpRequest();
-        //xhr.open('GET', tileURL, true);
-        //xhr.setRequestHeader('Content-Type', 'img/png');
-        //xhr.responseType = "blob";
 
         _onload = function () {
             let canvas = document.createElement("canvas");
@@ -68,29 +79,33 @@ var tileAlgebra = (function () {
                     layerGroup.addLayer(rect);
                 }
             };
+            increase_counter = function() {
+                current_progress++;
+                _handle_progress_bar(progressBar, map);
+            }
+            xhr_eval.onloadend = increase_counter;
             xhr_eval.send(JSON.stringify(body_json));
         };
-
+        max++;
         downloadedImg.crossOrigin = "Anonymous";
         downloadedImg.addEventListener("load", _onload, false);
         let tileURL = 'https://a.tile.openstreetmap.org/' + z + '/' + x + '/' + y + '.png';
         downloadedImg.src = tileURL;
-    }
+    };
 
     return {
-        bbox_coverage: function (northEast, southWest, z, polygon_gj) {
+        bbox_coverage: function (northEast, southWest, z, polygon_gj, progressBar, map) {
+            _handle_progress_bar();
             let layerGroup = L.layerGroup([]);
             let stop_x = _long2tile(northEast.lng, z);
             let start_y = _lat2tile(northEast.lat, z);
             let start_x = _long2tile(southWest.lng, z);
             let stop_y = _lat2tile(southWest.lat, z);
-            for (let x = start_x; x < stop_x; x++) {
-                for (let y = start_y; y < stop_y; y++) {
-                    _validate_tile(x, y, z, polygon_gj, layerGroup);
-                }
-                ;
-            }
-            ;
+            for (let x = start_x; x <= stop_x; x++) {
+                for (let y = start_y; y <= stop_y; y++) {
+                    _validate_tile(x, y, z, polygon_gj, layerGroup, progressBar, map);
+                };
+            };
             return layerGroup;
         }
     };
