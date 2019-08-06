@@ -89,7 +89,11 @@ var tileAlgebra = (function () {
         max++;
         downloadedImg.crossOrigin = "Anonymous";
         downloadedImg.addEventListener("load", _onload, false);
-        let tileURL = 'https://a.tile.openstreetmap.org/' + z + '/' + x + '/' + y + '.png';
+        downloadedImg.addEventListener("error", function () {current_progress++;}, false);
+        downloadedImg.addEventListener("timeout", function () {current_progress++;}, false);
+        let servers = 'abc';
+        let server_str = servers[Math.floor(Math.random() * servers.length)];
+        let tileURL = 'https://'+ server_str +'.tile.openstreetmap.org/' + z + '/' + x + '/' + y + '.png';
         downloadedImg.src = tileURL;
     };
 
