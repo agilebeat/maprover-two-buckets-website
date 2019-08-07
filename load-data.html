@@ -55,36 +55,50 @@
 
 
         var railControl =  L.Control.extend({
-
             options: {
                 position: 'topright'
             },
-
+            container: null,
             onAdd: function (map) {
-                var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
-
-                container.style.backgroundColor = 'white';
-                container.style.backgroundImage = "url(images/railroad-icon.png)";
-                container.style.backgroundSize = "45px 45px";
-                container.style.width = '45px';
-                container.style.height = '45px';
-
-                container.onclick = function(){
-                    //map.addLayer(L.rectangle([[-41.2458, 174.78682], [-41.25, 174.79]]))
-                    //map.addLayer(railLayer.options.layerGroup)
-                    if (container.style.width == '50px') {
+                this.container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
+                this.container.style.backgroundColor = 'white';
+                this.container.style.backgroundImage = "url(images/railroad-icon.png)";
+                this.container.style.backgroundSize = "45px 45px";
+                this.container.style.width = '45px';
+                this.container.style.height = '45px';
+                let container = this.container;
+                this.container.onclick = function() {
+                    if (container.style.width == '55px') {
                         container.style.backgroundSize = "45px 45px";
                         container.style.width = '45px';
                         container.style.height = '45px';
                     } else {
-                        container.style.backgroundSize = "50px 50px";
-                        container.style.width = '50px';
-                        container.style.height = '50px';
+                        container.style.backgroundSize = "55px 55px";
+                        container.style.width = '55px';
+                        container.style.height = '55px';
                     }
                 }
+                /* Prevent click events propagation to map */
+                L.DomEvent.disableClickPropagation(this.container);
 
-                return container;
-            }
+                /* Prevent right click event propagation to map */
+                L.DomEvent.on(this.container, 'contextmenu', function (ev)
+                {
+                    L.DomEvent.stopPropagation(ev);
+                });
+
+                /* Prevent scroll events propagation to map when cursor on the div */
+                L.DomEvent.disableScrollPropagation(this.container);
+
+                for (var event in this.options.events)
+                {
+                    L.DomEvent.on(this.container, event, this.options.events[event], this.container);
+                }
+                return this.container;
+            },
+            getContainer: function () {
+                return this.container;
+            },
         });
 
         var tweetControl =  L.Control.extend({
@@ -133,9 +147,8 @@
             }
         });
 
-        // 		var map = L.map('map').setView([63.41784,10.40359], 5);
-
-        map.addControl(new railControl());
+        rail_control = new railControl();
+        map.addControl(rail_control);
         map.addControl(new tweetControl());
         map.addControl(new filterTweetControl());
 
@@ -193,15 +206,18 @@
                     },
             });
 
+
             if (type === 'polygon') {
-                progressBar.addTo(this);
-                let layerGroup = tileAlgebra.bbox_coverage(layer._bounds._northEast,
-                    layer._bounds._southWest,
-                    14,
-                    layer.toGeoJSON(),
-                    progressBar);
-                layerGroup.addTo(this);
-            }
+                if (rail_control.getContainer().style.width=='55px') {
+                    progressBar.addTo(this);
+                    let layerGroup = tileAlgebra.bbox_coverage(layer._bounds._northEast,
+                            layer._bounds._southWest,
+                            14,
+                            layer.toGeoJSON(),
+                            progressBar);
+                            layerGroup.addTo(this);
+                };
+            };
         });
     </script>
 </body>
