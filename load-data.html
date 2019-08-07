@@ -205,14 +205,16 @@
                         padding: '0px',
                     },
             });
-
-
+            let rec_lvl = this.getZoom() + 3;
+            if (rec_lvl > 19) {
+                rec_lvl = 19;
+            }
             if (type === 'polygon') {
                 if (rail_control.getContainer().style.width=='55px') {
                     progressBar.addTo(this);
                     let layerGroup = tileAlgebra.bbox_coverage(layer._bounds._northEast,
                             layer._bounds._southWest,
-                            14,
+                            rec_lvl,
                             layer.toGeoJSON(),
                             progressBar);
                             layerGroup.addTo(this);
