@@ -89,12 +89,14 @@ var tileAlgebra = (function () {
         max++;
         downloadedImg.crossOrigin = "Anonymous";
         downloadedImg.addEventListener("load", _onload, false);
-        downloadedImg.addEventListener("error", function () {current_progress++;}, false);
+        let success = true;
+        downloadedImg.addEventListener("error", function () {success=false;current_progress++;}, false);
         downloadedImg.addEventListener("timeout", function () {current_progress++;}, false);
         let servers = 'abc';
         let server_str = servers[Math.floor(Math.random() * servers.length)];
         let tileURL = 'https://'+ server_str +'.tile.openstreetmap.org/' + z + '/' + x + '/' + y + '.png';
         downloadedImg.src = tileURL;
+        return success;
     };
 
     return {
@@ -107,7 +109,12 @@ var tileAlgebra = (function () {
             let stop_y = _lat2tile(southWest.lat, z);
             for (let x = start_x; x <= stop_x; x++) {
                 for (let y = start_y; y <= stop_y; y++) {
-                    _validate_tile(x, y, z, polygon_gj, layerGroup, progressBar, map);
+                    for (let i = 0; i < 5; i++) {
+                        let isSuccess = _validate_tile(x, y, z, polygon_gj, layerGroup, progressBar, map);
+                        if (isSuccess) {
+                            break;
+                        }
+                    }
                 };
             };
             return layerGroup;
