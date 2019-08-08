@@ -17,6 +17,7 @@
             integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
             crossorigin="anonymous">
     </script>
+    <script src="scripts/shpwrite.js"></script>
     <style>
         body {
             padding: 0;
@@ -147,10 +148,69 @@
             }
         });
 
+        var exportControl =  L.Control.extend({
+
+            options: {
+                position: 'bottomright'
+            },
+
+            onAdd: function (map) {
+                var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
+
+                container.style.backgroundColor = 'white';
+                container.style.backgroundImage = "url(images/export.png)";
+                container.style.backgroundSize = "45px 45px";
+                container.style.width = '45px';
+                container.style.height = '45px';
+
+                container.onclick = function(){
+                    console.log('Clicked');
+// (optional) set names for feature types and zipped folder
+                    var options = {
+                        folder: 'myshapes',
+                        types: {
+                            point: 'mypoints',
+                            polygon: 'mypolygons',
+                            line: 'mylines'
+                        }
+                    }
+// a GeoJSON bridge for features
+                    shpwrite.download({
+                        type: 'FeatureCollection',
+                        features: [
+                            {
+                                type: 'Feature',
+                                geometry: {
+                                    type: 'Point',
+                                    coordinates: [0, 0]
+                                },
+                                properties: {
+                                    name: 'Foo'
+                                }
+                            },
+                            {
+                                type: 'Feature',
+                                geometry: {
+                                    type: 'Point',
+                                    coordinates: [0, 10]
+                                },
+                                properties: {
+                                    name: 'Bar'
+                                }
+                            }
+                        ]
+                    }, options);
+                }
+
+                return container;
+            }
+        });
+
         rail_control = new railControl();
         map.addControl(rail_control);
         map.addControl(new tweetControl());
         map.addControl(new filterTweetControl());
+        map.addControl(new exportControl());
 
 
 
