@@ -164,42 +164,18 @@
                 container.style.height = '45px';
 
                 container.onclick = function(){
-                    console.log('Clicked');
-// (optional) set names for feature types and zipped folder
+                    console.log(selectionList);
                     var options = {
-                        folder: 'myshapes',
+                        folder: 'maprover-filter',
                         types: {
-                            point: 'mypoints',
-                            polygon: 'mypolygons',
-                            line: 'mylines'
+                            point: 'points',
+                            polygon: 'polygons',
+                            line: 'lines'
                         }
                     }
-// a GeoJSON bridge for features
-                    shpwrite.download({
-                        type: 'FeatureCollection',
-                        features: [
-                            {
-                                type: 'Feature',
-                                geometry: {
-                                    type: 'Point',
-                                    coordinates: [0, 0]
-                                },
-                                properties: {
-                                    name: 'Foo'
-                                }
-                            },
-                            {
-                                type: 'Feature',
-                                geometry: {
-                                    type: 'Point',
-                                    coordinates: [0, 10]
-                                },
-                                properties: {
-                                    name: 'Bar'
-                                }
-                            }
-                        ]
-                    }, options);
+                    if (selectionList.length > 0) {
+                        shpwrite.download(selectionList[0].toGeoJSON(), options);
+                    }
                 }
 
                 return container;
@@ -210,7 +186,8 @@
         map.addControl(rail_control);
         map.addControl(new tweetControl());
         map.addControl(new filterTweetControl());
-        map.addControl(new exportControl());
+        exportControl = new exportControl();
+        map.addControl(exportControl);
 
 
 
@@ -242,6 +219,7 @@
 
         var drawControl = new L.Control.Draw(options);
         map.addControl(drawControl);
+        var selectionList = [];
 
         map.on(L.Draw.Event.CREATED, function(e) {
             let type = e.layerType,
@@ -277,7 +255,8 @@
                             rec_lvl,
                             layer.toGeoJSON(),
                             progressBar);
-                            layerGroup.addTo(this);
+                    layerGroup.addTo(this);
+                    selectionList.push(layerGroup);
                 };
             };
         });
