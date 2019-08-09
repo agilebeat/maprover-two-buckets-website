@@ -155,18 +155,17 @@
             },
 
             onAdd: function (map) {
-                var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
+                this.container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
 
-                container.style.backgroundColor = 'white';
-                container.style.backgroundImage = "url(images/export.png)";
-                container.style.backgroundSize = "45px 45px";
-                container.style.width = '45px';
-                container.style.height = '45px';
+                this.container.style.backgroundColor = 'white';
+                this.container.style.backgroundImage = "url(images/export.png)";
+                this.container.style.backgroundSize = "45px 45px";
+                this.container.style.width = '45px';
+                this.container.style.height = '45px';
 
-                container.onclick = function(){
-                    console.log(selectionList);
+                this.container.onclick = function(){
                     var options = {
-                        folder: 'maprover-filter',
+                        folder: 'maprover-selection',
                         types: {
                             point: 'points',
                             polygon: 'polygons',
@@ -174,11 +173,34 @@
                         }
                     }
                     if (selectionList.length > 0) {
-                        shpwrite.download(selectionList[0].toGeoJSON(), options);
+                        let combineGeoJSON = {
+                            "type" : "FeatureCollection",
+                            "features": []
+                        };
+                        selectionList.forEach(function (item, index) {
+                            combineGeoJSON.features = combineGeoJSON.features.concat(item.toGeoJSON().features);
+                        });
+                        shpwrite.download(combineGeoJSON, options);
                     }
                 }
 
-                return container;
+                /* Prevent click events propagation to map */
+                L.DomEvent.disableClickPropagation(this.container);
+
+                /* Prevent right click event propagation to map */
+                L.DomEvent.on(this.container, 'contextmenu', function (ev)
+                {
+                    L.DomEvent.stopPropagation(ev);
+                });
+
+                /* Prevent scroll events propagation to map when cursor on the div */
+                L.DomEvent.disableScrollPropagation(this.container);
+
+                for (var event in this.options.events)
+                {
+                    L.DomEvent.on(this.container, event, this.options.events[event], this.container);
+                }
+                return this.container;
             }
         });
 
