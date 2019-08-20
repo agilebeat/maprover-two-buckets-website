@@ -143,7 +143,7 @@
             },
         });
 
-        var tweetControl =  L.Control.extend({
+        var TweetControl =  L.Control.extend({
 
             options: {
                 position: 'topright'
@@ -159,10 +159,65 @@
                 this.container.style.height = '45px';
 
                 this.container.onclick = function(){
-                    console.log('buttonClicked');
+                    let container = this;
+                    if (this.style.width == '55px') {
+                        this.style.backgroundSize = "45px 45px";
+                        this.style.width = '45px';
+                        this.style.height = '45px';
+                        map.removeLayer(this.filtered_tweets)
+                        return
+                    } else {
+                        this.style.backgroundSize = "55px 55px";
+                        this.style.width = '55px';
+                        this.style.height = '55px';
+                    }
+                    var options = {
+                        folder: 'maprover-selection',
+                        types: {
+                            point: 'points',
+                            polygon: 'polygons',
+                            line: 'lines'
+                        }
+                    }
+                    if (selectionList.length > 0) {
+                        let combineGeoJSON = {
+                            "type" : "FeatureCollection",
+                            "features": []
+                        };
+                        selectionList.forEach(function (item, index) {
+                            combineGeoJSON.features = combineGeoJSON.features.concat(item.toGeoJSON().features);
+                        });
+                        let xhr_eval = new XMLHttpRequest();
+                        xhr_eval.open('POST', 'https://dq4deueez2.execute-api.us-east-1.amazonaws.com/prod/tweet', true);
+                        xhr_eval.setRequestHeader('Content-Type', 'application/json');
+                        xhr_eval.onload = function () {
+                            let json_rsp = JSON.parse(xhr_eval.responseText);
+                            container.filtered_tweets = L.geoJSON(json_rsp)
+                            container.filtered_tweets.addTo(map);
+                        };
+                        xhr_eval.send(JSON.stringify(combineGeoJSON));
+                    }
                 }
 
+
+                /* Prevent click events propagation to map */
+                L.DomEvent.disableClickPropagation(this.container);
+
+                /* Prevent right click event propagation to map */
+                L.DomEvent.on(this.container, 'contextmenu', function (ev)
+                {
+                    L.DomEvent.stopPropagation(ev);
+                });
+
+                /* Prevent scroll events propagation to map when cursor on the div */
+                L.DomEvent.disableScrollPropagation(this.container);
+
+                for (var event in this.options.events)
+                {
+                    L.DomEvent.on(this.container, event, this.options.events[event], this.container);
+                }
                 return this.container;
+
             }
         });
 
@@ -300,7 +355,7 @@
 
         let rail_control = new RailControl();
         map.addControl(rail_control);
-        map.addControl(new tweetControl());
+        map.addControl(new TweetControl());
         map.addControl(new FilterTweetControl());
         map.addControl(new locationControl());
         exportControl = new exportControl();
