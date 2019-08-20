@@ -70,7 +70,7 @@ var tileAlgebra = (function () {
                 "tile_base64": tileB64
             };
             let xhr_eval = new XMLHttpRequest();
-            xhr_eval.open('POST', 'https://bgpquq5d0c.execute-api.us-east-1.amazonaws.com/railroad/infer', true);
+            xhr_eval.open('POST', 'https://2w75f5k0i4.execute-api.us-east-1.amazonaws.com/prod/infer', true);
             xhr_eval.setRequestHeader('Content-Type', 'application/json');
             xhr_eval.onload = function () {
                 let json_rsp = JSON.parse(xhr_eval.responseText);
@@ -94,7 +94,8 @@ var tileAlgebra = (function () {
         downloadedImg.addEventListener("timeout", function () {current_progress++;}, false);
         let servers = 'abc';
         let server_str = servers[Math.floor(Math.random() * servers.length)];
-        let tileURL = 'https://'+ server_str +'.tile.openstreetmap.org/' + z + '/' + x + '/' + y + '.png';
+        let tileURL = 'https://50dht0jpe7.execute-api.us-east-1.amazonaws.com/prod/wmts/' + z + '/' + x + '/' + y + '.png';
+        //let tileURL = 'https://'+ server_str +'.tile.openstreetmap.org/' + z + '/' + x + '/' + y + '.png';
         downloadedImg.src = tileURL;
         return success;
     };
