@@ -266,13 +266,15 @@
                             combineGeoJSON.features = combineGeoJSON.features.concat(item.toGeoJSON().features);
                         });
                         let xhr_eval = new XMLHttpRequest();
-                        xhr_eval.open('POST', 'https://dq4deueez2.execute-api.us-east-1.amazonaws.com/prod/tweet', true);
+                        xhr_eval.open('POST', 'https://dq4deueez2.execute-api.us-east-1.amazonaws.com/prod/filter', true);
                         xhr_eval.setRequestHeader('Content-Type', 'application/json');
+                        xhr_eval.set
                         xhr_eval.onload = function () {
                             let json_rsp = JSON.parse(xhr_eval.responseText);
                             container.filtered_tweets = L.geoJSON(json_rsp)
                             container.filtered_tweets.addTo(map);
                         };
+                        console.log(combineGeoJSON)
                         xhr_eval.send(JSON.stringify(combineGeoJSON));
                     }
                 }
