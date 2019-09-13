@@ -70,7 +70,6 @@ var tileAlgebra = (function () {
                 "tile_base64": tileB64
             };
             let xhr_eval = new XMLHttpRequest();
-            //xhr_eval.open('POST', 'https://2w75f5k0i4.execute-api.us-east-1.amazonaws.com/prod/infer', true);
             xhr_eval.open('POST', service_endpoint, true);
             xhr_eval.setRequestHeader('Content-Type', 'application/json');
             xhr_eval.onload = function () {
