@@ -104,6 +104,54 @@
             },
         });
 
+        var AirfieldControl =  L.Control.extend({
+            options: {
+                position: 'topright'
+            },
+            container: null,
+            onAdd: function (map) {
+                this.container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
+                this.container.style.backgroundColor = 'white';
+                this.container.style.backgroundImage = "url(images/jet-icon.png)";
+                this.container.style.backgroundSize = "45px 45px";
+                this.container.style.width = '45px';
+                this.container.style.height = '45px';
+                let container = this.container;
+                this.container.onclick = function() {
+                    if (container.style.width == '55px') {
+                        container.style.backgroundSize = "45px 45px";
+                        container.style.width = '45px';
+                        container.style.height = '45px';
+                    } else {
+                        container.style.backgroundSize = "55px 55px";
+                        container.style.width = '55px';
+                        container.style.height = '55px';
+                    }
+                }
+                /* Prevent click events propagation to map */
+                L.DomEvent.disableClickPropagation(this.container);
+
+                /* Prevent right click event propagation to map */
+                L.DomEvent.on(this.container, 'contextmenu', function (ev)
+                {
+                    L.DomEvent.stopPropagation(ev);
+                });
+
+                /* Prevent scroll events propagation to map when cursor on the div */
+                L.DomEvent.disableScrollPropagation(this.container);
+
+                for (var event in this.options.events)
+                {
+                    L.DomEvent.on(this.container, event, this.options.events[event], this.container);
+                }
+                return this.container;
+            },
+            getContainer: function () {
+                return this.container;
+            },
+        });
+
+
         var locationControl =  L.Control.extend({
 
             options: {
@@ -357,6 +405,8 @@
 
         let rail_control = new RailControl();
         map.addControl(rail_control);
+        let airfield_control = new AirfieldControl();
+        map.addControl(airfield_control);
         map.addControl(new TweetControl());
         map.addControl(new FilterTweetControl());
         map.addControl(new locationControl());
@@ -429,6 +479,15 @@
                             rec_lvl,
                             layer.toGeoJSON(),
                             progressBar);
+                    layerGroup.addTo(this);
+                    selectionList.push(layerGroup);
+                } else if (airfield_control.getContainer().style.width=='55px') {
+                    progressBar.addTo(this);
+                    let layerGroup = tileAlgebra.bbox_coverage(layer._bounds._northEast,
+                        layer._bounds._southWest,
+                        rec_lvl,
+                        layer.toGeoJSON(),
+                        progressBar);
                     layerGroup.addTo(this);
                     selectionList.push(layerGroup);
                 };
