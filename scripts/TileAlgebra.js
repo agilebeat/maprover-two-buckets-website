@@ -44,7 +44,47 @@ var tileAlgebra = (function () {
             .text(cp + "% Complete");
     };
 
-    let _validate_tile = function (service_endpoint, x, y, z, polygon_gj, layerGroup, progressBar, map) {
+    let _mark_xyz_tile = function(x, y, z, tile_map) {
+        if (typeof tile_map.get(z) === 'undefined')
+            tile_map.set(z, new Map())
+        if (typeof tile_map.get(z).get(x) === 'undefined')
+            tile_map.get(z).set(x, new Map())
+        if (typeof tile_map.get(z).get(x).get(y) === 'undefined')
+            tile_map.get(z).get(x).set(y, true)
+    };
+
+    let _check_if_xyz_tile_is_marked = function(x, y, z, tile_map) {
+        if (typeof tile_map.get(z) === 'undefined')
+            return false
+        if (typeof tile_map.get(z).get(x) === 'undefined')
+            return false
+        if (typeof tile_map.get(z).get(x).get(y) === 'undefined')
+            return false
+        return true
+    }
+
+    let _add_rectanbgle = function(x, y, z, layerGroup, tile_map) {
+        if (!_check_if_xyz_tile_is_marked(x, y, z, tile_map)) {
+            _mark_xyz_tile(x, y, z, tile_map);
+            let rect = _get_as_rectangle(x, y, z);
+            layerGroup.addLayer(rect);
+        }
+    }
+
+    let _add_rectangle_with_neighbors = function(x, y, z, layerGroup, tile_map) {
+        _add_rectanbgle(x, y, z, layerGroup, tile_map);
+        _add_rectanbgle(x-1, y, z, layerGroup, tile_map);
+        _add_rectanbgle(x-1, y-1, z, layerGroup, tile_map);
+        _add_rectanbgle(x, y-1, z, layerGroup, tile_map);
+        _add_rectanbgle(x+1, y-1, z, layerGroup, tile_map);
+        _add_rectanbgle(x+1, y, z, layerGroup, tile_map);
+        _add_rectanbgle(x+1, y+1, z, layerGroup, tile_map);
+        _add_rectanbgle(x, y+1, z, layerGroup, tile_map);
+        _add_rectanbgle(x-1, y+1, z, layerGroup, tile_map);
+    }
+
+
+    let _validate_tile = function (service_endpoint, x, y, z, polygon_gj, layerGroup, progressBar, map, tile_map) {
         let polygon_tf = turf.polygon(polygon_gj.geometry.coordinates);
         let rect = _get_as_rectangle(x, y, z);
         let rect_tf = turf.polygon(rect.toGeoJSON().geometry.coordinates);
@@ -75,8 +115,9 @@ var tileAlgebra = (function () {
             xhr_eval.onload = function () {
                 let json_rsp = JSON.parse(xhr_eval.responseText);
                 if (json_rsp.RailClass) {
-                    let rect = _get_as_rectangle(x, y, z);
-                    layerGroup.addLayer(rect);
+                    _add_rectangle_with_neighbors(x, y, z, layerGroup, tile_map)
+                    //let rect = _get_as_rectangle(x, y, z);
+                    //layerGroup.addLayer(rect);
                 }
             };
             increase_counter = function() {
@@ -108,10 +149,11 @@ var tileAlgebra = (function () {
             let start_y = _lat2tile(northEast.lat, z);
             let start_x = _long2tile(southWest.lng, z);
             let stop_y = _lat2tile(southWest.lat, z);
+            let tile_map = new Map();
             for (let x = start_x; x <= stop_x; x++) {
                 for (let y = start_y; y <= stop_y; y++) {
                     for (let i = 0; i < 5; i++) {
-                        let isSuccess = _validate_tile(service_endpoint, x, y, z, polygon_gj, layerGroup, progressBar, map);
+                        let isSuccess = _validate_tile(service_endpoint, x, y, z, polygon_gj, layerGroup, progressBar, map, tile_map);
                         if (isSuccess) {
                             break;
                         }
