@@ -44,7 +44,7 @@ var tileAlgebra = (function () {
             .text(cp + "% Complete");
     };
 
-    let _validate_tile = function (x, y, z, polygon_gj, layerGroup, progressBar, map) {
+    let _validate_tile = function (service_endpoint, x, y, z, polygon_gj, layerGroup, progressBar, map) {
         let polygon_tf = turf.polygon(polygon_gj.geometry.coordinates);
         let rect = _get_as_rectangle(x, y, z);
         let rect_tf = turf.polygon(rect.toGeoJSON().geometry.coordinates);
@@ -70,7 +70,8 @@ var tileAlgebra = (function () {
                 "tile_base64": tileB64
             };
             let xhr_eval = new XMLHttpRequest();
-            xhr_eval.open('POST', 'https://2w75f5k0i4.execute-api.us-east-1.amazonaws.com/prod/infer', true);
+            //xhr_eval.open('POST', 'https://2w75f5k0i4.execute-api.us-east-1.amazonaws.com/prod/infer', true);
+            xhr_eval.open('POST', service_endpoint, true);
             xhr_eval.setRequestHeader('Content-Type', 'application/json');
             xhr_eval.onload = function () {
                 let json_rsp = JSON.parse(xhr_eval.responseText);
@@ -101,7 +102,7 @@ var tileAlgebra = (function () {
     };
 
     return {
-        bbox_coverage: function (northEast, southWest, z, polygon_gj, progressBar, map) {
+        bbox_coverage: function (service_endpoint, northEast, southWest, z, polygon_gj, progressBar, map) {
             _handle_progress_bar();
             let layerGroup = L.layerGroup([]);
             let stop_x = _long2tile(northEast.lng, z);
@@ -111,7 +112,7 @@ var tileAlgebra = (function () {
             for (let x = start_x; x <= stop_x; x++) {
                 for (let y = start_y; y <= stop_y; y++) {
                     for (let i = 0; i < 5; i++) {
-                        let isSuccess = _validate_tile(x, y, z, polygon_gj, layerGroup, progressBar, map);
+                        let isSuccess = _validate_tile(service_endpoint, x, y, z, polygon_gj, layerGroup, progressBar, map);
                         if (isSuccess) {
                             break;
                         }

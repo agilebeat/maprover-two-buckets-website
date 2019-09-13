@@ -474,7 +474,8 @@
             if (type === 'polygon') {
                 if (rail_control.getContainer().style.width=='55px') {
                     progressBar.addTo(this);
-                    let layerGroup = tileAlgebra.bbox_coverage(layer._bounds._northEast,
+                    let layerGroup = tileAlgebra.bbox_coverage('https://2w75f5k0i4.execute-api.us-east-1.amazonaws.com/prod/infer',
+                            layer._bounds._northEast,
                             layer._bounds._southWest,
                             rec_lvl,
                             layer.toGeoJSON(),
@@ -483,7 +484,8 @@
                     selectionList.push(layerGroup);
                 } else if (airfield_control.getContainer().style.width=='55px') {
                     progressBar.addTo(this);
-                    let layerGroup = tileAlgebra.bbox_coverage(layer._bounds._northEast,
+                    let layerGroup = tileAlgebra.bbox_coverage('https://2w75f5k0i4.execute-api.us-east-1.amazonaws.com/prod/infer',
+                        layer._bounds._northEast,
                         layer._bounds._southWest,
                         rec_lvl,
                         layer.toGeoJSON(),
