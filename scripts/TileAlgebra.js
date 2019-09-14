@@ -33,6 +33,8 @@ var tileAlgebra = (function () {
 
     let _handle_progress_bar = function(progressBar, map) {
         let cp = Math.round((100*current_progress)/max);
+        if (isNaN(cp))
+            cp = 0
         if (cp == 100) {
             max = 0;
             current_progress=0;
